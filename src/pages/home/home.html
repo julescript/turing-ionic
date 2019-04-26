@@ -1,14 +1,173 @@
-<ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
+<ion-header mode="md" style="    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.164);">
+  <ion-navbar mode="md">
+    <div class="headling">
+        <span class="title">Universal Turing Machine</span>
+        <br>
+        <span class="subtitle">by <b>Julien Hosri</b></span>
+    </div>
   </ion-navbar>
+
+  <ion-toolbar no-padding class="borderthickbot">
+      <div class="machine-wrapper">
+          <div class="strip-wrapper" [style.width]=stripW id="strip">
+            <div class="strip-cell" *ngFor="let cell of cells">{{cell.data}}</div>
+          </div>
+          <div class="scanner-wrapper">
+            <div class="scanner-state" id="state">State: <b>{{state}}</b></div>
+            <div id="eyewrapper">
+                <div class="scanner-eye" id="eyehand">
+                    <ion-icon name="md-eye"></ion-icon>
+                </div>
+                <div class="eye-box" id="eye"></div>
+            </div>
+      
+          </div>
+        </div>
+  </ion-toolbar>
+
 </ion-header>
 
-<ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+
+
+<ion-content class="darkback">
+
+  <ion-input (keypress)="refresh($event)" style="opacity: 0 !important"></ion-input>
+
+  <div class="logwrapper">
+    <!-- <div><b>_console: ~Julien$</b></div> -->
+    <div>Copyright © 2018 <b>Julien Hosri</b></div>
+    <div>Welcome To My <b>Universal Turing Machine Simulator</b>!</div>
+    <br> 
+    <div *ngIf="logs.length != 0"><b>log_console: ~Julien$ :</b></div>
+    <div *ngIf="logs.length != 0"><b>----------------------------</b></div>
+    <div *ngFor="let log of logs"><b>[ {{log.date}} ]</b> :&nbsp;&nbsp; {{log.data}}</div>
+    <br *ngIf="logs.length != 0">
+    <div><b>Controls:</b></div>
+    <div><b><</b>&nbsp; : move left 1 cell</div>
+    <div><b>></b>&nbsp; : move right 1 cell</div>
+    <div><b>Spacebar </b>or<b> ;</b>&nbsp; : clear current cell</div>
+    <div><b>Enter</b>&nbsp; : clear all cells</div>
+    <br>
+    <div><b>x</b> = {{x}} (decimal) <span *ngIf="x!=null"><br>&nbsp;&nbsp; = {{zeroOf(x)}} </span></div>
+    <div><b>y</b> = {{y}} (decimal) <span *ngIf="y!=null"><br>&nbsp;&nbsp; = {{zeroOf(y)}} </span></div>
+    <br>
+    <div><b>Operation type :</b> {{operation}} (<span *ngIf="operation == '+'">Addition</span><span *ngIf="operation == '-'">Substraction</span><span *ngIf="operation == '/'">Division</span><span *ngIf="operation == 'x'">Multiplication</span>)</div>
+    <div *ngIf="x!=null && y!=null"><b>x + y</b> = {{x}} + {{y}} </div>
+    <br>
+
+  </div>
+
+
+
 </ion-content>
+
+
+<ion-footer style="max-height: 20px !important">
+
+    <ion-grid style="max-width: 375px;" class="whiteback" id="footer">
+        <ion-row>
+            <ion-col col-2>
+                <button [disabled]="disableAll" ion-button full icon-only color="white" (click)="hidefooter()">
+                    <ion-icon [name]="footerShown ? 'ios-arrow-down' : 'ios-arrow-up'"></ion-icon>
+                  </button>
+            </ion-col>
+            <ion-col col-2>
+                <button [disabled]="disableAll" ion-button full icon-only color="white" (click)="clearAll()">
+                    <ion-icon name="md-trash" color="danger"></ion-icon>                  
+                  </button>
+            </ion-col>
+            <ion-col col-2>
+              <button [disabled]="disableAll" ion-button full icon-only color="white" (click)="resetstate()">
+                  <ion-icon name="md-git-branch" color="primary"></ion-icon>                  
+                </button>
+          </ion-col>
+
+            <ion-col col-2>
+              <button [disabled]="disableAll" ion-button full icon-only color="white" (click)="halt()">
+                  <ion-icon name="md-flag" color="pink"></ion-icon>                  
+                </button>
+          </ion-col>
+
+          <ion-col col-4>
+              <ion-item no-lines>
+                  <!-- <ion-label>Show Scanner</ion-label> -->
+                  <ion-toggle [disabled]="disableAll" [(ngModel)]="showEye" (ionChange)="togglescanner()"></ion-toggle>
+                </ion-item>
+          </ion-col>
+    
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input [disabled]="disableAll" type="number" [(ngModel)]="x" placeholder="X" text-center class="numberinput"></ion-input>
+          </ion-col>
+          <ion-col>
+              <ion-item no-lines >
+                  <ion-label>Operation</ion-label>
+                  <ion-select [disabled]="disableAll" [(ngModel)]="operation">
+                    <ion-option value="+">+</ion-option>
+                    <ion-option value="-" disabled="true">-</ion-option>
+                    <ion-option value="x" disabled="true">x</ion-option>
+                    <ion-option value="/" disabled="true">/</ion-option>
+                  </ion-select>
+                </ion-item>
+          </ion-col>
+          <ion-col>
+              <ion-input [disabled]="disableAll" type="number" [(ngModel)]="y" placeholder="Y" text-center class="numberinput"></ion-input>
+            </ion-col>
+        </ion-row>
+    
+        <ion-row>
+            <ion-col>
+              <button [disabled]="!this.showEye || disableAll" ion-button full color="primary" (click)="changeData('0')">0</button> 
+            </ion-col>
+            <ion-col>
+                <button [disabled]="!this.showEye || disableAll" ion-button full color="primary" (click)="changeData('1')">1</button> 
+              </ion-col>
+                  <ion-col>
+                      <button [disabled]="!this.showEye || disableAll" ion-button full color="primary" (click)="changeData('#')">#</button> 
+                    </ion-col>
+                    <ion-col>
+                        <button [disabled]="!this.showEye || disableAll" ion-button full color="primary" (click)="changeData('')">
+                            <ion-icon name="md-trash"></ion-icon>
+                        </button> 
+                      </ion-col>
+
+                      <ion-col col-4>
+                          <button ion-button [disabled]="disableAll" full color="primary" (click)="compute2()"><b>Compute</b></button> 
+                        </ion-col>
+          </ion-row>
+
+        <ion-row>
+            <ion-col>
+                <button ion-button [disabled]="disableAll" full color="primary" (click)="move('left', 2)">
+                  <ion-icon name="ios-arrow-back"></ion-icon>
+                  <ion-icon name="ios-arrow-back"></ion-icon>
+                </button>
+              </ion-col>
+          <ion-col>
+            <button ion-button [disabled]="disableAll" full color="primary" (click)="move('left', 1)">
+              <ion-icon name="ios-arrow-back"></ion-icon>
+            </button>
+          </ion-col>
+    
+          <ion-col>
+            <button ion-button [disabled]="disableAll" full color="primary" (click)="center()">
+                <ion-icon name="md-locate"></ion-icon>
+            </button> 
+          </ion-col>
+          <ion-col>
+            <button ion-button [disabled]="disableAll" full color="primary" (click)="move('right', 1)">
+              <ion-icon name="ios-arrow-forward"></ion-icon>
+            </button> 
+          </ion-col>
+          <ion-col>
+              <button ion-button [disabled]="disableAll" full color="primary" (click)="move('right', 2)">
+                <ion-icon name="ios-arrow-forward"></ion-icon>
+                <ion-icon name="ios-arrow-forward"></ion-icon>
+              </button> 
+            </ion-col>
+        </ion-row>
+
+      </ion-grid>
+    
+</ion-footer>

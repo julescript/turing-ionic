@@ -17,6 +17,8 @@ A simulation of the theoretical Turing machine designed by Alan Turing. Using io
   ## App Preview
 
   ### [Turing Machine](https://github.com/julescript/turing-ionic.git/src/pages/home)
+  
+  the below demo (GIF) is showing the addition function of the turing theoratical machine, adding 2 + 3 in a cool way and counting the zeros to get the result 5
 
   | GIF  | INITIAL STATE  |
   | -----------------| -----|
